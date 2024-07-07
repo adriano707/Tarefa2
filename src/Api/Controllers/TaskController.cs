@@ -1,18 +1,18 @@
 using Api.DTOs;
 using Domain;
-using Domain.Aggregations.User.Entities;
+using Domain.Aggregations.Task.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
 [ApiController]
-[Route("users")]
-public class UserController : BaseController
+[Route("task")]
+public class TaskController : BaseController
 {
     private readonly IRepository _repository;
 
-    public UserController(IRepository repository)
+    public TaskController(IRepository repository)
     {
         _repository = repository;
     }
@@ -21,11 +21,11 @@ public class UserController : BaseController
     [Route("{id:Guid}")]
     public async Task<IActionResult> Get([FromRoute] Guid id)
     {
-        var user = _repository.Query<User>().FirstOrDefault(x => x.Id == id);
+        var user = _repository.Query<TaskUser>().FirstOrDefault(x => x.Id == id);
 
         if (user == null)
         {
-            return NotFoundWithMessage("Nenhum usuário encontrado.");
+            return NotFoundWithMessage("Nenhuma ustarefauário encontrad.");
         }
 
         return Success(user);
@@ -34,7 +34,7 @@ public class UserController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var users = _repository.Query<User>().ToList();
+        var users = _repository.Query<TaskUser>().ToList();
 
         return Success(users);
     }
@@ -48,12 +48,32 @@ public class UserController : BaseController
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UserUpdateDto dto)
+    [Route("{id}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] TaskDto dto)
     {
-        var user = _repository.Query<User>().FirstOrDefaultAsync(x => x.Id == dto.Id);
+        var user = await _repository.Query<TaskUser>().FirstOrDefaultAsync(x => x.Id == id);
 
-        user.
+        if (user is not null)
+        {
+            user.Update(dto.Title, dto.Description, dto.Status);
+            _repository.Update(user);
+            await _repository.CommitAsync();
+        }
 
-        return Success(user);
+        return NotFoundWithMessage("Tarefa não pode ser atualizada");
+    }
+
+    [HttpDelete]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    {
+        var user = _repository.Query<TaskUser>().FirstOrDefault(u => u.Id == id);
+        if (user is not null)
+        {
+            _repository.Delete(user);
+            await _repository.CommitAsync();
+        }
+
+        return NotFoundWithMessage("Falha ao deletar tarefa");
     }
 }

@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("task")]
-public class TaskController : BaseController
+[Route("users")]
+public class UserController : BaseController
 {
     private readonly IRepository _repository;
 
-    public TaskController(IRepository repository)
+    public UserController(IRepository repository)
     {
         _repository = repository;
     }
@@ -51,18 +51,32 @@ public class TaskController : BaseController
     }
 
     [HttpPut]
-    [Route("{id:Guid}")]
+    [Route("{id}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UserUpdateDto dto)
     {
         var user = await _repository.Query<User>().FirstOrDefaultAsync(x => x.Id == id);
 
         if (user is not null)
         {
-            user.Update(dto.UserName, dto.Password); 
+            user.Update(dto.UserName, dto.Password);
             _repository.Update(user);
             await _repository.CommitAsync();
         }
 
-        return NotFoundWithMessage("Usuario não pode ser atualizado");
+        return Success(user);
+    }
+
+    [HttpDelete]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    {
+        var user = _repository.Query<User>().FirstOrDefault(u => u.Id == id);
+        if (user is not null)
+        { 
+            _repository.Delete(user);
+            await _repository.CommitAsync();
+        }
+
+        return NotFoundWithMessage("Falha ao deletar usuário");
     }
 }
