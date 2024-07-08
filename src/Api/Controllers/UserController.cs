@@ -1,6 +1,8 @@
 using Api.DTOs;
+using Api.Services;
 using Domain;
 using Domain.Aggregations.User.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +17,29 @@ public class UserController : BaseController
     public UserController(IRepository repository)
     {
         _repository = repository;
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [Route("login")]
+    public async Task<IActionResult> LogIn([FromBody] UserDto dto)
+    {
+
+        var user = _repository.Query<User>().FirstOrDefault(u => u.UserName == dto.UserName);
+
+        if (user == null) return Unauthorized("User not found. ");
+        if (user.Password != dto.Password) return Unauthorized("Password does not match. ");
+
+        var token = TokenService.GenerateToken(user);
+
+        ReturnLoginDto returnLoginDto = new ReturnLoginDto()
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Password = user.Password,
+            Token = token
+        };
+        return Success(returnLoginDto);
     }
 
     [HttpGet]

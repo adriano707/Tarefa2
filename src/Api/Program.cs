@@ -1,7 +1,7 @@
 using Api.Configurations;
 using Api.Configurations.Auth;
 using Api.Configurations.Swagger;
-using Api.Middlewares;
+//using Api.Middlewares;
 using Data.Contexts;
 using Data.Repositories;
 using Domain;
@@ -56,7 +56,7 @@ app.UseAuthorization();
 
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-app.UseMiddleware<CheckTenantPermissionMiddleware>();
+//app.UseMiddleware<CheckTenantPermissionMiddleware>();
 
 var apiVersionProvider = app.Services.GetService<IApiVersionDescriptionProvider>();
 
