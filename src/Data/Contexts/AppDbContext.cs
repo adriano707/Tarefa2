@@ -5,17 +5,10 @@ namespace Data.Contexts;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext()
-    {
-        
+    public AppDbContext(){
     }
-    
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-    }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

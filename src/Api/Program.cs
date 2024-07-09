@@ -1,12 +1,14 @@
 using Api.Configurations;
 using Api.Configurations.Auth;
 using Api.Configurations.Swagger;
+using Data;
 //using Api.Middlewares;
 using Data.Contexts;
 using Data.Repositories;
 using Domain;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,10 +17,7 @@ IdentityModelEventSource.ShowPII = true;
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(x =>
-{
-    //x.UseSqlServer(builder.Configuration.GetConnectionString("app"));
-}, ServiceLifetime.Transient);
+builder.Services.ConfigureDatabase(builder.Configuration);
 
 builder.Services.AddAuthnticationConfiguration(builder.Configuration);
 
